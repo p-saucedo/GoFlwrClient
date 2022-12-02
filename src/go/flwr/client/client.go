@@ -1,8 +1,8 @@
 package goflwr
 
-type Client struct {
-}
-
-func (c Client) GetParameters() []float64 {
-	return make([]float64, 2)
+type iClient interface {
+	GetParameters()
+	GetProperties()
+	Fit()
+	Evaluate()
 }

@@ -1,0 +1,48 @@
+package goflwrclient
+
+import (
+	"log"
+	"strconv"
+)
+
+type iClient interface {
+	Fit(x int) string
+}
+
+type ClientWrapper struct {
+	client iClient
+}
+
+func (cw *ClientWrapper) Fit(x string) string {
+	x_num, _ := strconv.Atoi(x)
+
+	post_fit := cw.client.Fit(x_num)
+
+	return post_fit + "exito"
+}
+
+type CustomClient struct {
+	iClient
+}
+
+func (cc *CustomClient) Fit(x int) string {
+	return strconv.Itoa(x + 1)
+}
+
+type CustomClient2 struct {
+	iClient
+}
+
+func (cc *CustomClient2) Fit(x int) string {
+	return strconv.Itoa(x + 10)
+}
+
+func main() {
+
+	custom_client := &CustomClient{}
+
+	client_wrapper := &ClientWrapper{client: custom_client}
+
+	log.Print(client_wrapper.Fit("4"))
+
+}
