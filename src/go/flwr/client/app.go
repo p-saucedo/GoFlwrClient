@@ -11,8 +11,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func Connect() pb.FlowerService_JoinClient {
-	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
+func Connect(serverAddres string) pb.FlowerService_JoinClient {
+	conn, err := grpc.Dial(serverAddres, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -33,4 +33,55 @@ func Connect() pb.FlowerService_JoinClient {
 
 	return r
 
+}
+
+func StartClient(serverAddress string, client interface{}) {
+	c, h := client.(IClient)
+
+	if !h {
+		panic("Not a Client type")
+	}
+
+	clientWrapper := &ClientWrapper{Client: c}
+
+	var clientMessage *pb.ClientMessage = nil
+	var sleepDuration int = 0
+	var keepGoing bool = true
+
+	conn := Connect(serverAddress)
+
+	for {
+
+		for {
+			serverMessage, err := conn.Recv()
+
+			if err != nil {
+				panic(err)
+			}
+
+			clientMessage, sleepDuration, keepGoing = Handle(*clientWrapper, *serverMessage)
+
+			err = conn.Send(clientMessage)
+
+			log.Print(clientMessage)
+			if err != nil {
+				panic(err)
+			}
+
+			if !keepGoing {
+				break
+			}
+
+		}
+
+		if sleepDuration == 0 {
+			log.Println("INFO: Disconnect and shut down")
+			break
+		}
+
+		log.Printf("INFO: Disocnnect, then re-establish connection after %d second(s)\n", sleepDuration)
+
+		time.Sleep(time.Duration(sleepDuration))
+
+	}
 }

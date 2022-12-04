@@ -5,15 +5,15 @@ type Config map[string]Scalar
 type Properties map[string]Scalar
 
 type Parameters struct {
-	tensors     []byte
-	tensor_type string
+	Tensors    [][]byte
+	TensorType string
 }
 
 type GetParametersIns struct {
-	config Config
+	Config Config
 }
 
 type GetParametersRes struct {
-	config     Config
-	parameters Parameters
+	Config     Config
+	Parameters Parameters
 }

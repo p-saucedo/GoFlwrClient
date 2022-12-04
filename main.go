@@ -5,12 +5,8 @@ import (
 )
 
 func main() {
-	r := c.Connect()
+	client := &c.CustomClient{}
 
-	client := c.Client{}
-
-	server_msg, _ := r.Recv()
-
-	c.Handle(client, *server_msg)
+	c.StartClient("127.0.0.1:8080", client)
 
 }
