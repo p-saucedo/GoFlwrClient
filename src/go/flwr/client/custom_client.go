@@ -5,7 +5,7 @@ type CustomClient struct {
 }
 
 func (client *CustomClient) GetParameters(config map[string]interface{}) [][]byte {
-	return make([][]byte, 20)
+	return make([][]byte, 4)
 }
 
 func (client *CustomClient) GetProperties(config map[string]interface{}) map[string]interface{} {

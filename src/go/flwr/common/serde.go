@@ -18,6 +18,14 @@ func GetParametersResToProto(msg *typing.GetParametersRes) *pb.ClientMessage_Get
 	return &pb.ClientMessage_GetParametersRes{Status: status, Parameters: parameters}
 }
 
+func FitInsFromProto(msg *pb.ServerMessage_FitIns) *typing.FitIns {
+	return &typing.FitIns{Parameters: ParametersFromProto(msg.Parameters), Config: ConfigFromProto(msg.Config)}
+}
+
+func ParametersFromProto(proto *pb.Parameters) typing.Parameters {
+	return typing.Parameters{Tensors: proto.Tensors, TensorType: proto.TensorType}
+}
+
 func ParametersToProto(msg typing.Parameters) *pb.Parameters {
 	return &pb.Parameters{Tensors: msg.Tensors, TensorType: msg.TensorType}
 }
@@ -53,6 +61,11 @@ func ConfigToMap(config typing.Config) map[string]interface{} {
 	}
 
 	return mappedConfig
+}
+
+func MapToMetrics(metrics map[string]interface{}) typing.Metrics {
+
+	return &typing.Metrics(metrics)
 }
 
 /*func ScalarToProto(scalar interface{}) pb.Scalar {

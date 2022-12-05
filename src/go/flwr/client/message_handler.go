@@ -7,12 +7,19 @@ import (
 	"log"
 )
 
-func Handle(client ClientWrapper, server_msg pb.ServerMessage) (*pb.ClientMessage, int, bool) {
+func Handle(client ClientWrapper, server_msg *pb.ServerMessage) (*pb.ClientMessage, int, bool) {
 
 	switch server_msg.ProtoReflect().WhichOneof(server_msg.ProtoReflect().Descriptor().Oneofs().ByName("msg")).JSONName() {
+
 	case "getParametersIns":
 		client_message := _getParametersIns(client, server_msg.GetGetParametersIns())
+
 		return &pb.ClientMessage{Msg: &pb.ClientMessage_GetParametersRes_{GetParametersRes: client_message}}, 0, true
+
+	case "fitIns":
+		client_message := _fitIns(client, server_msg.GetFitIns())
+
+		return &pb.ClientMessage{Msg: &pb.ClientMessage_FitRes_{FitRes: client_message}}, 0, true
 	default:
 		log.Print("LIADITA")
 		return &pb.ClientMessage{}, 0, true
@@ -20,13 +27,20 @@ func Handle(client ClientWrapper, server_msg pb.ServerMessage) (*pb.ClientMessag
 
 }
 
-func _getParametersIns(cw ClientWrapper, get_parameters_msg *pb.ServerMessage_GetParametersIns) *pb.ClientMessage_GetParametersRes {
+func _getParametersIns(cw ClientWrapper, _getParametersMsg *pb.ServerMessage_GetParametersIns) *pb.ClientMessage_GetParametersRes {
 
-	get_parameters_ins := serde.GetParametersInsFromProto(get_parameters_msg)
+	__getParametersIns := serde.GetParametersInsFromProto(_getParametersMsg)
 
-	get_parameters_res := cw.GetParameters(get_parameters_ins)
+	__getParametersRes := cw.GetParameters(__getParametersIns)
 
-	get_parameters_res_proto := serde.GetParametersResToProto(get_parameters_res)
+	return serde.GetParametersResToProto(__getParametersRes)
+}
 
-	return get_parameters_res_proto
+func _fitIns(cw ClientWrapper, _fitInsMsg *pb.ServerMessage_FitIns) *pb.ClientMessage_FitRes {
+
+	__fitIns := serde.FitInsFromProto(_fitInsMsg)
+
+	__fitRes := cw.Fit(__fitIns)
+
+	return serde.FitResToProto(__fitRes)
 }

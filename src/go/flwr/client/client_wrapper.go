@@ -19,8 +19,9 @@ func (cw *ClientWrapper) GetProperties() {
 
 }
 
-func (cw *ClientWrapper) Fit() {
-
+func (cw *ClientWrapper) Fit(ins *typing.FitIns) *typing.FitRes {
+	parameters, numExamples, metrics := cw.Client.Fit(ins.Parameters.Tensors, serde.ConfigToMap(ins.Config))
+	return &typing.FitRes{Parameters: typing.Parameters{Tensors: parameters, TensorType: "kk"}, NumExamples: numExamples, Metrics: serde.MetricsToMap()}
 }
 
 func (cw *ClientWrapper) Evaluate() {

@@ -2,6 +2,8 @@ package goflwr
 
 import (
 	"context"
+	"errors"
+	"io"
 	"log"
 	"time"
 
@@ -11,8 +13,9 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func Connect(serverAddres string) pb.FlowerService_JoinClient {
-	conn, err := grpc.Dial(serverAddres, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func Connect(serverAddres string) (pb.FlowerService_JoinClient, context.CancelFunc, func() error) {
+	conn, err := grpc.Dial(serverAddres, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -21,8 +24,7 @@ func Connect(serverAddres string) pb.FlowerService_JoinClient {
 
 	c := pb.NewFlowerServiceClient(conn)
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second)
-
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	//defer cancel()
 
 	r, err := c.Join(ctx)
@@ -31,15 +33,15 @@ func Connect(serverAddres string) pb.FlowerService_JoinClient {
 		log.Fatalf("could not greet: %v", err)
 	}
 
-	return r
+	return r, cancel, conn.Close
 
 }
 
-func StartClient(serverAddress string, client interface{}) {
+func StartClient(serverAddress string, client interface{}) error {
 	c, h := client.(IClient)
 
 	if !h {
-		panic("Not a Client type")
+		return errors.New("Not a Client object")
 	}
 
 	clientWrapper := &ClientWrapper{Client: c}
@@ -48,24 +50,35 @@ func StartClient(serverAddress string, client interface{}) {
 	var sleepDuration int = 0
 	var keepGoing bool = true
 
-	conn := Connect(serverAddress)
-
 	for {
+
+		conn, ctxCancel, connClose := Connect(serverAddress)
 
 		for {
 			serverMessage, err := conn.Recv()
+			log.Printf("ERROR FROM RECV: %s\n", err)
 
-			if err != nil {
-				panic(err)
+			if err == io.EOF {
+				return errors.New("End of file")
 			}
 
-			clientMessage, sleepDuration, keepGoing = Handle(*clientWrapper, *serverMessage)
+			if err != nil {
+				log.Println(err)
+				log.Println("Failed to receive a message")
+			}
+
+			log.Printf("Message received from server: %s\n", serverMessage)
+
+			clientMessage, sleepDuration, keepGoing = Handle(*clientWrapper, serverMessage)
+
+			log.Printf("Client message response: %s\n", clientMessage)
 
 			err = conn.Send(clientMessage)
 
-			log.Print(clientMessage)
 			if err != nil {
-				panic(err)
+				ctxCancel()
+				connClose()
+				return errors.New("Bad idea")
 			}
 
 			if !keepGoing {
@@ -79,9 +92,11 @@ func StartClient(serverAddress string, client interface{}) {
 			break
 		}
 
-		log.Printf("INFO: Disocnnect, then re-establish connection after %d second(s)\n", sleepDuration)
+		log.Printf("INFO: Disconnect, then re-establish connection after %d second(s)\n", sleepDuration)
 
 		time.Sleep(time.Duration(sleepDuration))
 
 	}
+
+	return nil
 }
