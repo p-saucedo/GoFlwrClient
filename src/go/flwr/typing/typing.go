@@ -6,7 +6,7 @@ type Metrics map[string]Scalar
 type Properties map[string]Scalar
 
 type Parameters struct {
-	Tensors    [][]byte
+	Tensors    []byte
 	TensorType string
 }
 
