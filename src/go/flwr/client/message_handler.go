@@ -20,6 +20,12 @@ func Handle(client ClientWrapper, server_msg *pb.ServerMessage) (*pb.ClientMessa
 		client_message := _fitIns(client, server_msg.GetFitIns())
 
 		return &pb.ClientMessage{Msg: &pb.ClientMessage_FitRes_{FitRes: client_message}}, 0, true
+
+	case "evaluateIns":
+		client_message := _evaluateIns(client, server_msg.GetEvaluateIns())
+
+		return &pb.ClientMessage{Msg: &pb.ClientMessage_EvaluateRes_{EvaluateRes: client_message}}, 0, true
+
 	default:
 		log.Print("LIADITA")
 		return &pb.ClientMessage{}, 0, true
@@ -43,4 +49,13 @@ func _fitIns(cw ClientWrapper, _fitInsMsg *pb.ServerMessage_FitIns) *pb.ClientMe
 	__fitRes := cw.Fit(__fitIns)
 
 	return serde.FitResToProto(__fitRes)
+}
+
+func _evaluateIns(cw ClientWrapper, _evaluateInsMsg *pb.ServerMessage_EvaluateIns) *pb.ClientMessage_EvaluateRes {
+
+	__evaluateIns := serde.EvaluateInsFromProto(_evaluateInsMsg)
+
+	__evaluateRes := cw.Evaluate(__evaluateIns)
+
+	return serde.EvaluateResToProto(__evaluateRes)
 }

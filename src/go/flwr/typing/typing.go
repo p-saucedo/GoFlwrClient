@@ -29,3 +29,14 @@ type FitRes struct {
 	Metrics     Metrics
 	NumExamples int
 }
+
+type EvaluateIns struct {
+	Parameters Parameters
+	Config     Config
+}
+
+type EvaluateRes struct {
+	Loss        float32
+	Metrics     Metrics
+	NumExamples int
+}
