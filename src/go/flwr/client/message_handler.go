@@ -11,10 +11,20 @@ func Handle(client ClientWrapper, server_msg *pb.ServerMessage) (*pb.ClientMessa
 
 	switch server_msg.ProtoReflect().WhichOneof(server_msg.ProtoReflect().Descriptor().Oneofs().ByName("msg")).JSONName() {
 
+	case "reconnectIns":
+		client_message, sleepDuration := _ReconnectIns(client, server_msg.GetReconnectIns())
+
+		return &pb.ClientMessage{Msg: &pb.ClientMessage_DisconnectRes_{DisconnectRes: client_message}}, sleepDuration, false
+
 	case "getParametersIns":
 		client_message := _getParametersIns(client, server_msg.GetGetParametersIns())
 
 		return &pb.ClientMessage{Msg: &pb.ClientMessage_GetParametersRes_{GetParametersRes: client_message}}, 0, true
+
+	case "getPropertiesIns":
+		client_message := _getPropertiesIns(client, server_msg.GetGetPropertiesIns())
+
+		return &pb.ClientMessage{Msg: &pb.ClientMessage_GetPropertiesRes_{GetPropertiesRes: client_message}}, 0, true
 
 	case "fitIns":
 		client_message := _fitIns(client, server_msg.GetFitIns())
@@ -33,6 +43,19 @@ func Handle(client ClientWrapper, server_msg *pb.ServerMessage) (*pb.ClientMessa
 
 }
 
+func _ReconnectIns(cw ClientWrapper, _ReconnectMsg *pb.ServerMessage_ReconnectIns) (*pb.ClientMessage_DisconnectRes, int) {
+
+	reason := pb.Reason_ACK
+	sleepDuration := 0
+
+	if _ReconnectMsg.Seconds != 0 {
+		reason = pb.Reason_RECONNECT
+		sleepDuration = int(_ReconnectMsg.Seconds)
+	}
+
+	return &pb.ClientMessage_DisconnectRes{Reason: reason}, sleepDuration
+}
+
 func _getParametersIns(cw ClientWrapper, _getParametersMsg *pb.ServerMessage_GetParametersIns) *pb.ClientMessage_GetParametersRes {
 
 	__getParametersIns := serde.GetParametersInsFromProto(_getParametersMsg)
@@ -40,6 +63,15 @@ func _getParametersIns(cw ClientWrapper, _getParametersMsg *pb.ServerMessage_Get
 	__getParametersRes := cw.GetParameters(__getParametersIns)
 
 	return serde.GetParametersResToProto(__getParametersRes)
+}
+
+func _getPropertiesIns(cw ClientWrapper, _getPropertiessMsg *pb.ServerMessage_GetPropertiesIns) *pb.ClientMessage_GetPropertiesRes {
+
+	__getPropertiesIns := serde.GetPropertiesInsFromProto(_getPropertiessMsg)
+
+	__getPropertiesRes := cw.GetProperties(__getPropertiesIns)
+
+	return serde.GetPropertiesResToProto(__getPropertiesRes)
 }
 
 func _fitIns(cw ClientWrapper, _fitInsMsg *pb.ServerMessage_FitIns) *pb.ClientMessage_FitRes {
