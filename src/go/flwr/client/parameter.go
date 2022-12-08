@@ -8,7 +8,18 @@ import (
 	tensor "gorgonia.org/tensor"
 )
 
-func TensorToParameters(t *tensor.Dense) *typing.Parameters {
+func TensorToParameters(t []*tensor.Dense) *typing.Parameters {
+
+	tensors := make([][]byte, len(t))
+
+	for idx, _tensor := range t {
+		tensors[idx] = TensorToBytes(_tensor)
+	}
+
+	return &typing.Parameters{Tensors: tensors, TensorType: "numpy.ndarray"}
+}
+
+func TensorToBytes(t *tensor.Dense) []byte {
 	buf := new(bytes.Buffer)
 	err := t.WriteNpy(buf)
 
@@ -16,17 +27,28 @@ func TensorToParameters(t *tensor.Dense) *typing.Parameters {
 		panic(err)
 	}
 
-	return &typing.Parameters{Tensors: buf.Bytes(), TensorType: "numpy.ndarray"}
+	return buf.Bytes()
 }
 
-func ParametersToTensor(p *typing.Parameters) *tensor.Dense {
+func ParametersToTensor(p *typing.Parameters) []*tensor.Dense {
+	tensors := make([]*tensor.Dense, len(p.Tensors))
+
+	for idx, _tensor := range p.Tensors {
+		tensors[idx] = BytesToTensor(_tensor)
+	}
+
+	return tensors
+}
+
+func BytesToTensor(b []byte) *tensor.Dense {
 	var m *tensor.Dense
 
-	err := m.ReadNpy(bytes.NewReader(p.Tensors))
+	err := m.ReadNpy(bytes.NewReader(b))
 
 	if err != nil {
 		panic(err)
 	}
 
 	return m
+
 }
