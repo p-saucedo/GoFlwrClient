@@ -21,19 +21,6 @@ var (
 
 const loc = "./mnist/"
 
-var dt tensor.Dtype
-
-func parseDtype() {
-	switch *dtype {
-	case "float64":
-		dt = tensor.Float64
-	case "float32":
-		dt = tensor.Float32
-	default:
-		log.Fatalf("Unknown dtype: %v", *dtype)
-	}
-}
-
 type nn struct {
 	g      *gorgonia.ExprGraph
 	w0, w1 *gorgonia.Node
@@ -44,8 +31,8 @@ type nn struct {
 
 func newNN(g *gorgonia.ExprGraph) *nn {
 	// Create node for w/weight
-	w0 := gorgonia.NewMatrix(g, dt, gorgonia.WithShape(2, 2), gorgonia.WithName("w0"), gorgonia.WithInit(gorgonia.GlorotU(1.0)))
-	w1 := gorgonia.NewMatrix(g, dt, gorgonia.WithShape(2, 1), gorgonia.WithName("w1"), gorgonia.WithInit(gorgonia.GlorotU(1.0)))
+	w0 := gorgonia.NewMatrix(g, tensor.Float64, gorgonia.WithShape(2, 2), gorgonia.WithName("w0"), gorgonia.WithInit(gorgonia.GlorotU(1.0)))
+	w1 := gorgonia.NewMatrix(g, tensor.Float64, gorgonia.WithShape(2, 1), gorgonia.WithName("w1"), gorgonia.WithInit(gorgonia.GlorotU(1.0)))
 	return &nn{
 		g:  g,
 		w0: w0,
@@ -83,7 +70,7 @@ func (m *nn) fwd(x *gorgonia.Node) (err error) {
 }
 
 func main() {
-	parseDtype()
+
 	g := gorgonia.NewGraph()
 	m := newNN(g)
 

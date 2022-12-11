@@ -4,6 +4,7 @@ package goflwr
 import (
 	"bytes"
 	typing "goflwr/src/go/flwr/typing"
+	"log"
 
 	tensor "gorgonia.org/tensor"
 )
@@ -46,6 +47,7 @@ func BytesToTensor(b []byte) *tensor.Dense {
 	err := m.ReadNpy(bytes.NewReader(b))
 
 	if err != nil {
+		log.Fatal(err)
 		panic(err)
 	}
 
