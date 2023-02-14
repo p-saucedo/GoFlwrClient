@@ -9,6 +9,7 @@ require (
 	github.com/awalterschulze/gographviz v0.0.0-20190221210632-1e9ccb565bca // indirect
 	github.com/chewxy/hm v1.0.0 // indirect
 	github.com/chewxy/math32 v1.0.7-0.20210223031236-a3549c8cb6a9 // indirect
+	github.com/go-gota/gota v0.12.0
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/flatbuffers v1.12.0 // indirect
@@ -20,7 +21,7 @@ require (
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	gonum.org/v1/gonum v0.8.2 // indirect
+	gonum.org/v1/gonum v0.9.1 // indirect
 	google.golang.org/genproto v0.0.0-20200911024640-645f7a48b24f // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gorgonia.org/cu v0.9.3 // indirect

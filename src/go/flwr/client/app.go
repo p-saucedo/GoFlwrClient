@@ -56,7 +56,6 @@ func StartClient(serverAddress string, client interface{}) error {
 
 		for {
 			serverMessage, err := conn.Recv()
-			log.Printf("ERROR FROM RECV: %s\n", err)
 
 			if err == io.EOF {
 				return errors.New("End of file")
@@ -67,11 +66,11 @@ func StartClient(serverAddress string, client interface{}) error {
 				log.Println("Failed to receive a message")
 			}
 
-			log.Printf("Message received from server: %s\n", serverMessage)
+			log.Printf("\n\nMessage received from server: %s\n", serverMessage)
 
 			clientMessage, sleepDuration, keepGoing = Handle(*clientWrapper, serverMessage)
 
-			log.Printf("Client message response: %s\n", clientMessage)
+			log.Printf("\n\nClient message response: %s\n", clientMessage)
 
 			err = conn.Send(clientMessage)
 

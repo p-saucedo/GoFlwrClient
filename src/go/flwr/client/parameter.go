@@ -42,7 +42,7 @@ func ParametersToTensor(p *typing.Parameters) []*tensor.Dense {
 }
 
 func BytesToTensor(b []byte) *tensor.Dense {
-	var m *tensor.Dense
+	m := tensor.NewDense(tensor.Float64, tensor.Shape{1, 1})
 
 	err := m.ReadNpy(bytes.NewReader(b))
 
